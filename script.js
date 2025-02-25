@@ -1,3 +1,9 @@
+// 添加歌曲資訊
+const songInfo = {
+  title: "出水蓮"
+};
+
+// Can't be delete because this is the final settings
 // const sections = [
 //   { bpm: 80, beatsPerMeasure: 8, measures: 32, mute: false },
 //   { bpm: 80, beatsPerMeasure: 8, measures: 3, mute: true },
@@ -6,7 +12,7 @@
 //   { bpm: 160, beatsPerMeasure: 4, measures: 13, mute: false }
 // ];
 
-// For fast testing
+// For fast testing only
 const sections = [
     { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: false },
     { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: true },
@@ -29,6 +35,9 @@ const beatDisplay = document.getElementById('beatDisplay');
 const progressContainer = document.getElementById('progressContainer');
 const startPauseBtn = document.getElementById('startPauseBtn');
 const resetBtn = document.getElementById('resetBtn');
+
+// 在頁面載入時顯示歌曲名稱
+const songTitleElement = document.getElementById('songTitle');
 
 function initProgressBars() {
   progressContainer.innerHTML = '';
@@ -101,6 +110,8 @@ function playBeat() {
 }
 
 function tick() {
+  if (!isRunning) return;
+  
   playBeat();
   updateDisplay();
   
@@ -121,18 +132,23 @@ function tick() {
       }
     }
   }
+  
+  // 使用當前段落的 BPM 計算下一次 tick 的時間間隔
+  const nextTickTime = (60 / sections[currentSection].bpm) * 1000;
+  intervalId = setTimeout(tick, nextTickTime);
 }
 
 function startMetronome() {
   if (isRunning) return;
   isRunning = true;
-  intervalId = setInterval(tick, (60 / sections[currentSection].bpm) * 1000);
+  // 移除固定間隔，使用當前段落的 BPM
+  tick();
 }
 
 function stopMetronome() {
-  clearInterval(intervalId);
+  clearTimeout(intervalId);
   isRunning = false;
-  startPauseBtn.textContent = '開始';
+  startPauseBtn.textContent = '▶️ 開始';
 }
 
 function resetMetronome() {
@@ -161,6 +177,9 @@ startPauseBtn.addEventListener('click', () => {
 resetBtn.addEventListener('click', resetMetronome);
 
 window.onload = () => {
+  // 顯示歌曲名稱
+  songTitleElement.textContent = songInfo.title;
+  
   initProgressBars();
-  updateDisplay();
+  resetMetronome(); // 改用 resetMetronome 代替 updateDisplay，確保進度條狀態正確
 };
