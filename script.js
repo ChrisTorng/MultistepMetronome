@@ -3,23 +3,30 @@ const songInfo = {
   title: "出水蓮"
 };
 
-// Can't be delete because this is the final settings
-const sections = [
-  { bpm: 80, beatsPerMeasure: 8, measures: 32, mute: false },
-  { bpm: 80, beatsPerMeasure: 8, measures: 3, mute: true },
-  { bpm: 120, beatsPerMeasure: 4, measures: 17, mute: false },
-  { bpm: 144, beatsPerMeasure: 4, measures: 17, mute: false },
-  { bpm: 160, beatsPerMeasure: 4, measures: 13, mute: false }
-];
+// 根據環境決定使用哪個設定
+// 檢查是否為本機開發環境
+const isLocalDevelopment = window.location.hostname === 'localhost' || 
+                          window.location.hostname === '127.0.0.1' ||
+                          window.location.protocol === 'file:';
 
-// For fast testing only
-// const sections = [
-//     { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: false },
-//     { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: true },
-//     { bpm: 120, beatsPerMeasure: 4, measures: 1, mute: false },
-//     { bpm: 144, beatsPerMeasure: 4, measures: 1, mute: false },
-//     { bpm: 160, beatsPerMeasure: 4, measures: 1, mute: false }
-// ];
+// 選擇適當的設定
+const sections = isLocalDevelopment ? 
+  // 快速測試設定
+  [
+    { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: false },
+    { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: true },
+    { bpm: 120, beatsPerMeasure: 4, measures: 1, mute: false },
+    { bpm: 144, beatsPerMeasure: 4, measures: 1, mute: false },
+    { bpm: 160, beatsPerMeasure: 4, measures: 1, mute: false }
+  ] : 
+  // 最終設定
+  [
+    { bpm: 80, beatsPerMeasure: 8, measures: 34, mute: false },
+    { bpm: 80, beatsPerMeasure: 8, measures: 3, mute: true },
+    { bpm: 120, beatsPerMeasure: 4, measures: 17, mute: false },
+    { bpm: 144, beatsPerMeasure: 4, measures: 17, mute: false },
+    { bpm: 160, beatsPerMeasure: 4, measures: 13, mute: false }
+  ];
   
 let currentSection = 0;
 let currentMeasure = 1;
@@ -44,8 +51,12 @@ function initProgressBars() {
   sections.forEach((sec, index) => {
     const bar = document.createElement('div');
     bar.classList.add('progress-bar');
+    if (sec.mute) {
+      bar.classList.add('mute');
+    }
     const fill = document.createElement('div');
     fill.classList.add('progress-fill');
+    fill.style.width = '0'; // 確保初始寬度為0
     bar.appendChild(fill);
     progressContainer.appendChild(bar);
   });
@@ -57,21 +68,19 @@ function updateDisplay() {
   bpmDisplay.textContent = secData.bpm;
   measureDisplay.textContent = `${currentMeasure} / ${secData.measures}`;
   beatDisplay.textContent = currentBeat;
-
-  // 更新所有進度條
+  
+  // 更新所有進度條，使用 (currentBeat - 1) 計算已完成拍數
   for (let i = 0; i < sections.length; i++) {
     const fill = progressContainer.children[i].querySelector('.progress-fill');
     
     if (i < currentSection) {
-      // 已完成的段落進度為100%
       fill.style.width = '100%';
     } else if (i > currentSection) {
-      // 未開始的段落進度為0%
       fill.style.width = '0%';
     } else {
-      // 當前段落顯示實際進度
       const totalBeats = secData.beatsPerMeasure * secData.measures;
-      const completedBeats = (currentMeasure - 1) * secData.beatsPerMeasure + currentBeat;
+      // 修正：初始狀態 (1,1) 將得到 0 完成拍數
+      const completedBeats = (currentMeasure - 1) * secData.beatsPerMeasure + (currentBeat - 0);
       const percentage = (completedBeats / totalBeats) * 100;
       fill.style.width = `${percentage}%`;
     }
@@ -140,8 +149,13 @@ function tick() {
 
 function startMetronome() {
   if (isRunning) return;
+  
+  // 如果已經播放到最後，重新從頭開始
+  if (currentSection >= sections.length) {
+    resetMetronome();
+  }
+  
   isRunning = true;
-  // 移除固定間隔，使用當前段落的 BPM
   tick();
 }
 
@@ -156,19 +170,13 @@ function resetMetronome() {
   currentSection = 0;
   currentMeasure = 1;
   currentBeat = 1;
-  
-  // 清空所有進度條
-  document.querySelectorAll('.progress-fill').forEach(fill => {
-    fill.style.width = '0%';
-  });
-  
   updateDisplay();
 }
 
 startPauseBtn.addEventListener('click', () => {
   if (!isRunning) {
     startMetronome();
-    startPauseBtn.textContent = '暫停';
+    startPauseBtn.textContent = '⏸️ 暫停';
   } else {
     stopMetronome();
   }
@@ -180,6 +188,9 @@ window.onload = () => {
   // 顯示歌曲名稱
   songTitleElement.textContent = songInfo.title;
   
+  // 初始化進度條
   initProgressBars();
-  resetMetronome(); // 改用 resetMetronome 代替 updateDisplay，確保進度條狀態正確
+  
+  // 重置所有計數和進度
+  resetMetronome();
 };
