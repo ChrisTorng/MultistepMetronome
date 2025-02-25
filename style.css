@@ -8,37 +8,37 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* 改為從上往下排列 */
-  overflow-y: auto; /* 允許垂直滾動 */
+  justify-content: flex-start; /* Align items from top to bottom */
+  overflow-y: auto; /* Enable vertical scrolling */
   width: 100vw;
   height: 100vh;
   font-family: sans-serif;
-  padding: 10px; /* 減少內邊距 */
+  padding: 10px; /* Reduce padding */
   background-color: #f5f5f5;
 }
 
 h1 {
-  margin-bottom: 5px; /* 減少下方間距 */
+  margin-bottom: 5px; /* Reduce bottom margin */
   font-size: 2.2rem;
 }
 
 .song-title {
   font-size: 1.8rem;
-  margin-bottom: 10px; /* 減少下方間距 */
+  margin-bottom: 10px; /* Reduce bottom margin */
   color: #555;
 }
 
 .info {
   font-size: 2rem;
   text-align: left;
-  margin-bottom: 10px; /* 減少下方間距 */
+  margin-bottom: 10px; /* Reduce bottom margin */
   width: 90%;
   max-width: 500px;
 }
 
 .info div {
   display: flex;
-  margin-bottom: 2px; /* 減少下方間距 */
+  margin-bottom: 2px; /* Reduce bottom margin */
 }
 
 .info div span:first-child {
@@ -54,7 +54,7 @@ h1 {
 }
 
 .controls {
-  margin-top: 15px; /* 減少上方間距 */
+  margin-top: 15px; /* Reduce top margin */
   display: flex;
   justify-content: space-between;
   width: 90%;
@@ -64,8 +64,8 @@ h1 {
 .controls button {
   flex: 1;
   font-size: 1.8rem;
-  margin: 0 10px;
-  padding: 15px 10px;
+  margin: 0 5px;
+  padding: 15px 0px;
   border: none;
   border-radius: 10px;
   background-color: #4CAF50;
@@ -82,13 +82,13 @@ h1 {
 
 #progressContainer {
   width: 90%;
-  margin: 10px 0; /* 減少上下間距 */
+  margin: 10px 0; /* Reduce top and bottom margins */
   max-width: 500px;
 }
 
 .progress-bar {
   background: #e0e0e0;
-  margin-bottom: 8px; /* 減少進度條之間的間距 */
+  margin-bottom: 8px; /* Reduce margin between progress bars */
   height: 24px;
   position: relative;
   border-radius: 12px;
@@ -115,7 +115,7 @@ h1 {
   }
 }
 
-/* 靜音段落的進度條顏色 */
+/* Progress bar color for muted segments */
 .progress-bar.mute .progress-fill {
   background: #999;
 }

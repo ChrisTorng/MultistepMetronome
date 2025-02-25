@@ -1,17 +1,17 @@
-// 添加歌曲資訊
+// Song information
 const songInfo = {
   title: "出水蓮"
 };
 
-// 根據環境決定使用哪個設定
-// 檢查是否為本機開發環境
+// Choose configuration based on environment
+// Check if running in local development environment
 const isLocalDevelopment = window.location.hostname === 'localhost' || 
                           window.location.hostname === '127.0.0.1' ||
                           window.location.protocol === 'file:';
 
-// 選擇適當的設定
+// Select appropriate configuration
 const sections = isLocalDevelopment ? 
-  // 快速測試設定
+  // Quick test configuration
   [
     { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: false },
     { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: true },
@@ -19,7 +19,7 @@ const sections = isLocalDevelopment ?
     { bpm: 144, beatsPerMeasure: 4, measures: 1, mute: false },
     { bpm: 160, beatsPerMeasure: 4, measures: 1, mute: false }
   ] : 
-  // 最終設定
+  // Production configuration
   [
     { bpm: 80, beatsPerMeasure: 8, measures: 34, mute: false },
     { bpm: 80, beatsPerMeasure: 8, measures: 3, mute: true },
@@ -43,7 +43,7 @@ const progressContainer = document.getElementById('progressContainer');
 const startPauseBtn = document.getElementById('startPauseBtn');
 const resetBtn = document.getElementById('resetBtn');
 
-// 在頁面載入時顯示歌曲名稱
+// Display song title on page load
 const songTitleElement = document.getElementById('songTitle');
 
 function initProgressBars() {
@@ -56,7 +56,7 @@ function initProgressBars() {
     }
     const fill = document.createElement('div');
     fill.classList.add('progress-fill');
-    fill.style.width = '0'; // 確保初始寬度為0
+    fill.style.width = '0'; // Ensure initial width is 0
     bar.appendChild(fill);
     progressContainer.appendChild(bar);
   });
@@ -69,7 +69,7 @@ function updateDisplay() {
   measureDisplay.textContent = `${currentMeasure} / ${secData.measures}`;
   beatDisplay.textContent = currentBeat;
   
-  // 更新所有進度條，使用 (currentBeat - 1) 計算已完成拍數
+  // Update all progress bars, calculate completed beats using (currentBeat - 1)
   for (let i = 0; i < sections.length; i++) {
     const fill = progressContainer.children[i].querySelector('.progress-fill');
     
@@ -79,7 +79,7 @@ function updateDisplay() {
       fill.style.width = '0%';
     } else {
       const totalBeats = secData.beatsPerMeasure * secData.measures;
-      // 修正：初始狀態 (1,1) 將得到 0 完成拍數
+      // Fix: Initial state (1,1) will get 0 completed beats
       const completedBeats = (currentMeasure - 1) * secData.beatsPerMeasure + (currentBeat - 0);
       const percentage = (completedBeats / totalBeats) * 100;
       fill.style.width = `${percentage}%`;
@@ -90,19 +90,19 @@ function updateDisplay() {
 function playBeat() {
   const secData = sections[currentSection];
   
-  // 如果當前段落是靜音的，則不播放聲音
+  // Skip sound if current section is muted
   if (secData.mute) return;
   
   if (!audioCtx) audioCtx = new AudioContext();
   
-  // 創建更接近「嗒」聲的聲音
+  // Create a more "tick" like sound
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
   
-  // 設置為更低的頻率
+  // Set to lower frequency
   osc.frequency.value = 440;
   
-  // 設置快速衰減的音量包絡
+  // Set quick decay envelope
   gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
   
@@ -142,7 +142,7 @@ function tick() {
     }
   }
   
-  // 使用當前段落的 BPM 計算下一次 tick 的時間間隔
+  // Calculate next tick interval based on current section's BPM
   const nextTickTime = (60 / sections[currentSection].bpm) * 1000;
   intervalId = setTimeout(tick, nextTickTime);
 }
@@ -150,7 +150,7 @@ function tick() {
 function startMetronome() {
   if (isRunning) return;
   
-  // 如果已經播放到最後，重新從頭開始
+  // Restart from beginning if reached the end
   if (currentSection >= sections.length) {
     resetMetronome();
   }
@@ -162,7 +162,7 @@ function startMetronome() {
 function stopMetronome() {
   clearTimeout(intervalId);
   isRunning = false;
-  startPauseBtn.textContent = '▶️ 開始';
+  startPauseBtn.textContent = '▶️ Start';
 }
 
 function resetMetronome() {
@@ -176,7 +176,7 @@ function resetMetronome() {
 startPauseBtn.addEventListener('click', () => {
   if (!isRunning) {
     startMetronome();
-    startPauseBtn.textContent = '⏸️ 暫停';
+    startPauseBtn.textContent = '⏸️ Pause';
   } else {
     stopMetronome();
   }
@@ -185,12 +185,12 @@ startPauseBtn.addEventListener('click', () => {
 resetBtn.addEventListener('click', resetMetronome);
 
 window.onload = () => {
-  // 顯示歌曲名稱
+  // Display song title
   songTitleElement.textContent = songInfo.title;
   
-  // 初始化進度條
+  // Initialize progress bars
   initProgressBars();
   
-  // 重置所有計數和進度
+  // Reset all counters and progress
   resetMetronome();
 };
