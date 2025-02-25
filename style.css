@@ -18,27 +18,27 @@ body {
 }
 
 h1 {
-  margin-bottom: 5px; /* Reduce bottom margin */
+  margin-bottom: 5px;
   font-size: 2.2rem;
 }
 
 .song-title {
   font-size: 1.8rem;
-  margin-bottom: 10px; /* Reduce bottom margin */
+  margin-bottom: 10px;
   color: #555;
 }
 
 .info {
   font-size: 2rem;
   text-align: left;
-  margin-bottom: 10px; /* Reduce bottom margin */
+  margin-bottom: 0;
   width: 90%;
   max-width: 500px;
 }
 
 .info div {
   display: flex;
-  margin-bottom: 2px; /* Reduce bottom margin */
+  margin-bottom: 2px;
 }
 
 .info div span:first-child {
@@ -54,7 +54,7 @@ h1 {
 }
 
 .controls {
-  margin-top: 15px; /* Reduce top margin */
+  margin-top: 5px;
   display: flex;
   justify-content: space-between;
   width: 90%;

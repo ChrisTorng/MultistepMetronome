@@ -14,6 +14,7 @@ const sections = isLocalDevelopment ?
   // Quick test configuration
   [
     { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: false },
+    { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: false },
     { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: true },
     { bpm: 120, beatsPerMeasure: 4, measures: 1, mute: false },
     { bpm: 144, beatsPerMeasure: 4, measures: 1, mute: false },
@@ -21,7 +22,8 @@ const sections = isLocalDevelopment ?
   ] : 
   // Production configuration
   [
-    { bpm: 80, beatsPerMeasure: 8, measures: 34, mute: false },
+    { bpm: 80, beatsPerMeasure: 8, measures: 2, mute: false },
+    { bpm: 80, beatsPerMeasure: 8, measures: 32, mute: false },
     { bpm: 80, beatsPerMeasure: 8, measures: 3, mute: true },
     { bpm: 120, beatsPerMeasure: 4, measures: 17, mute: false },
     { bpm: 144, beatsPerMeasure: 4, measures: 17, mute: false },
@@ -69,17 +71,19 @@ function updateDisplay() {
   measureDisplay.textContent = `${currentMeasure} / ${secData.measures}`;
   beatDisplay.textContent = currentBeat;
   
-  // Update all progress bars, calculate completed beats using (currentBeat - 1)
+  // Update all progress bars
   for (let i = 0; i < sections.length; i++) {
     const fill = progressContainer.children[i].querySelector('.progress-fill');
     
-    if (i < currentSection) {
+    if (!isRunning) {
+      // When stopped, all progress bars should be 0
+      fill.style.width = '0%';
+    } else if (i < currentSection) {
       fill.style.width = '100%';
     } else if (i > currentSection) {
       fill.style.width = '0%';
     } else {
       const totalBeats = secData.beatsPerMeasure * secData.measures;
-      // Fix: Initial state (1,1) will get 0 completed beats
       const completedBeats = (currentMeasure - 1) * secData.beatsPerMeasure + (currentBeat - 0);
       const percentage = (completedBeats / totalBeats) * 100;
       fill.style.width = `${percentage}%`;
@@ -89,6 +93,11 @@ function updateDisplay() {
 
 function playBeat() {
   const secData = sections[currentSection];
+  
+  document.body.classList.remove('flash');
+  if (currentBeat === 1) {
+    document.body.classList.add('flash');
+  }
   
   // Skip sound if current section is muted
   if (secData.mute) return;
@@ -111,11 +120,6 @@ function playBeat() {
   
   osc.start();
   osc.stop(audioCtx.currentTime + 0.08);
-  
-  document.body.classList.remove('flash');
-  if (currentBeat === 1) {
-    document.body.classList.add('flash');
-  }
 }
 
 function tick() {
@@ -162,7 +166,7 @@ function startMetronome() {
 function stopMetronome() {
   clearTimeout(intervalId);
   isRunning = false;
-  startPauseBtn.textContent = '▶️ Start';
+  startPauseBtn.textContent = '▶️ 開始';
 }
 
 function resetMetronome() {
@@ -176,7 +180,7 @@ function resetMetronome() {
 startPauseBtn.addEventListener('click', () => {
   if (!isRunning) {
     startMetronome();
-    startPauseBtn.textContent = '⏸️ Pause';
+    startPauseBtn.textContent = '⏸️ 暫停';
   } else {
     stopMetronome();
   }
@@ -187,6 +191,7 @@ resetBtn.addEventListener('click', resetMetronome);
 window.onload = () => {
   // Display song title
   songTitleElement.textContent = songInfo.title;
+  document.title = `${songInfo.title} - 多步驟節拍器`;
   
   // Initialize progress bars
   initProgressBars();
@@ -194,3 +199,18 @@ window.onload = () => {
   // Reset all counters and progress
   resetMetronome();
 };
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', (event) => {
+  if (event.code === 'Space') {
+    event.preventDefault(); // 防止空白鍵捲動頁面
+    if (!isRunning) {
+      startMetronome();
+      startPauseBtn.textContent = '⏸️ 暫停';
+    } else {
+      stopMetronome();
+    }
+  } else if (event.key.toLowerCase() === 'r') {
+    resetMetronome();
+  }
+});
