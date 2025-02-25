@@ -3,6 +3,7 @@
   padding: 0;
   box-sizing: border-box;
 }
+
 body {
   display: flex;
   flex-direction: column;
@@ -12,42 +13,95 @@ body {
   width: 100vw;
   height: 100vh;
   font-family: sans-serif;
+  padding: 20px;
+  background-color: #f5f5f5;
 }
+
 h1 {
-  margin-bottom: 10px;
+  margin-bottom: 20px;
+  font-size: 2.2rem;
 }
+
 .info {
-  font-size: 1.5rem;
-  text-align: center;
-  margin-bottom: 10px;
+  font-size: 2rem;
+  text-align: left;
+  margin-bottom: 20px;
+  width: 90%;
+  max-width: 500px;
 }
+
+.info div {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.info div span:first-child {
+  width: 100px;
+  text-align: right;
+  margin-right: 10px;
+}
+
+.label {
+  width: 80px;
+  text-align: right;
+  margin-right: 10px;
+}
+
+.controls {
+  margin-top: 30px;
+}
+
 .controls button {
-  font-size: 1.2rem;
-  margin: 0 10px;
+  font-size: 1.8rem;
+  margin: 0 15px;
+  padding: 10px 25px;
+  border: none;
+  border-radius: 6px;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
 }
+
+.controls button:active {
+  background-color: #3e8e41;
+}
+
 #progressContainer {
   width: 90%;
-  margin: 10px 0;
+  margin: 20px 0;
+  max-width: 500px;
 }
+
 .progress-bar {
-  background: lightgray;
-  margin-bottom: 8px;
-  height: 10px;
+  background: #e0e0e0;
+  margin-bottom: 12px;
+  height: 16px;
   position: relative;
+  border-radius: 8px;
+  overflow: hidden;
 }
+
 .progress-fill {
   background: #3498db;
   height: 100%;
   width: 0;
+  transition: width 0.2s;
 }
+
 .flash {
   animation: flash 0.1s;
 }
+
 @keyframes flash {
   0% {
-    background-color: yellow;
+    background-color: rgba(255, 255, 0, 0.5);
   }
   100% {
-    background-color: white;
+    background-color: #f5f5f5;
   }
+}
+
+/* 靜音段落的進度條顏色 */
+.progress-bar.mute .progress-fill {
+  background: #999;
 }

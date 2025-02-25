@@ -1,11 +1,20 @@
-const sections = [
-  { bpm: 80, beatsPerMeasure: 8, measures: 32 },
-  { bpm: 80, beatsPerMeasure: 8, measures: 3 },
-  { bpm: 120, beatsPerMeasure: 4, measures: 17 },
-  { bpm: 144, beatsPerMeasure: 4, measures: 17 },
-  { bpm: 160, beatsPerMeasure: 4, measures: 13 }
-];
+// const sections = [
+//   { bpm: 80, beatsPerMeasure: 8, measures: 32, mute: false },
+//   { bpm: 80, beatsPerMeasure: 8, measures: 3, mute: true },
+//   { bpm: 120, beatsPerMeasure: 4, measures: 17, mute: false },
+//   { bpm: 144, beatsPerMeasure: 4, measures: 17, mute: false },
+//   { bpm: 160, beatsPerMeasure: 4, measures: 13, mute: false }
+// ];
 
+// For fast testing
+const sections = [
+    { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: false },
+    { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: true },
+    { bpm: 120, beatsPerMeasure: 4, measures: 1, mute: false },
+    { bpm: 144, beatsPerMeasure: 4, measures: 1, mute: false },
+    { bpm: 160, beatsPerMeasure: 4, measures: 1, mute: false }
+];
+  
 let currentSection = 0;
 let currentMeasure = 1;
 let currentBeat = 1;
@@ -40,25 +49,50 @@ function updateDisplay() {
   measureDisplay.textContent = `${currentMeasure} / ${secData.measures}`;
   beatDisplay.textContent = currentBeat;
 
-  const fill = progressContainer.children[currentSection].querySelector('.progress-fill');
-  const totalBeats = secData.beatsPerMeasure * secData.measures;
-  const completedBeats = (currentMeasure - 1) * secData.beatsPerMeasure + (currentBeat - 1);
-  fill.style.width = `${(completedBeats / totalBeats) * 100}%`;
+  // 更新所有進度條
+  for (let i = 0; i < sections.length; i++) {
+    const fill = progressContainer.children[i].querySelector('.progress-fill');
+    
+    if (i < currentSection) {
+      // 已完成的段落進度為100%
+      fill.style.width = '100%';
+    } else if (i > currentSection) {
+      // 未開始的段落進度為0%
+      fill.style.width = '0%';
+    } else {
+      // 當前段落顯示實際進度
+      const totalBeats = secData.beatsPerMeasure * secData.measures;
+      const completedBeats = (currentMeasure - 1) * secData.beatsPerMeasure + currentBeat;
+      const percentage = (completedBeats / totalBeats) * 100;
+      fill.style.width = `${percentage}%`;
+    }
+  }
 }
 
 function playBeat() {
+  const secData = sections[currentSection];
+  
+  // 如果當前段落是靜音的，則不播放聲音
+  if (secData.mute) return;
+  
   if (!audioCtx) audioCtx = new AudioContext();
+  
+  // 創建更接近「嗒」聲的聲音
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
   
-  osc.frequency.value = 600;
-  gain.gain.value = 0.5;
+  // 設置為更低的頻率
+  osc.frequency.value = 440;
+  
+  // 設置快速衰減的音量包絡
+  gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
   
   osc.connect(gain);
   gain.connect(audioCtx.destination);
   
   osc.start();
-  osc.stop(audioCtx.currentTime + 0.05);
+  osc.stop(audioCtx.currentTime + 0.08);
   
   document.body.classList.remove('flash');
   if (currentBeat === 1) {
@@ -106,6 +140,12 @@ function resetMetronome() {
   currentSection = 0;
   currentMeasure = 1;
   currentBeat = 1;
+  
+  // 清空所有進度條
+  document.querySelectorAll('.progress-fill').forEach(fill => {
+    fill.style.width = '0%';
+  });
+  
   updateDisplay();
 }
 
