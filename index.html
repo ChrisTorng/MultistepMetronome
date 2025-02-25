@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>多步驟節拍器</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>多步驟節拍器</h1>
+  <div class="info">
+    <div>段數：<span id="sectionDisplay"></span></div>
+    <div>速度：<span id="bpmDisplay"></span> BPM</div>
+    <div>小節：<span id="measureDisplay"></span></div>
+    <div>拍數：<span id="beatDisplay"></span></div>
+  </div>
+  <div id="progressContainer"></div>
+  <div class="controls">
+    <button id="startPauseBtn">開始</button>
+    <button id="resetBtn">從頭</button>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
