@@ -4,22 +4,22 @@ const songInfo = {
 };
 
 // Can't be delete because this is the final settings
-// const sections = [
-//   { bpm: 80, beatsPerMeasure: 8, measures: 32, mute: false },
-//   { bpm: 80, beatsPerMeasure: 8, measures: 3, mute: true },
-//   { bpm: 120, beatsPerMeasure: 4, measures: 17, mute: false },
-//   { bpm: 144, beatsPerMeasure: 4, measures: 17, mute: false },
-//   { bpm: 160, beatsPerMeasure: 4, measures: 13, mute: false }
-// ];
+const sections = [
+  { bpm: 80, beatsPerMeasure: 8, measures: 32, mute: false },
+  { bpm: 80, beatsPerMeasure: 8, measures: 3, mute: true },
+  { bpm: 120, beatsPerMeasure: 4, measures: 17, mute: false },
+  { bpm: 144, beatsPerMeasure: 4, measures: 17, mute: false },
+  { bpm: 160, beatsPerMeasure: 4, measures: 13, mute: false }
+];
 
 // For fast testing only
-const sections = [
-    { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: false },
-    { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: true },
-    { bpm: 120, beatsPerMeasure: 4, measures: 1, mute: false },
-    { bpm: 144, beatsPerMeasure: 4, measures: 1, mute: false },
-    { bpm: 160, beatsPerMeasure: 4, measures: 1, mute: false }
-];
+// const sections = [
+//     { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: false },
+//     { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: true },
+//     { bpm: 120, beatsPerMeasure: 4, measures: 1, mute: false },
+//     { bpm: 144, beatsPerMeasure: 4, measures: 1, mute: false },
+//     { bpm: 160, beatsPerMeasure: 4, measures: 1, mute: false }
+// ];
   
 let currentSection = 0;
 let currentMeasure = 1;
