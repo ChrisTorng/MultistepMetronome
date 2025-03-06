@@ -226,7 +226,7 @@ document.addEventListener('keydown', (event) => {
     } else {
       stopMetronome();
     }
-  } else if (event.key.toLowerCase() === 'r') {
+  } else if (event.code === 'KeyR') {
     resetMetronome();
   }
 });
