@@ -122,3 +122,15 @@ h1 {
 .progress-bar.mute .progress-fill {
   background: #999;
 }
+
+.progress-bar.prep-mode {
+  background-color: #ffecb3; /* 預備拍時的背景色 */
+}
+
+.progress-fill.prep-mode {
+  background-color: #ff9800; /* 預備拍時的填充色 */
+}
+
+.progress-fill.reverse {
+  margin-left: auto; /* 由右至左顯示時，將填充條靠右 */
+}

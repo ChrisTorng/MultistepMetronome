@@ -10,7 +10,7 @@ const isLocalDevelopment = window.location.hostname === 'localhost' ||
                           window.location.protocol === 'file:';
 
 // Select appropriate configuration
-const sections = isLocalDevelopment ? 
+const sections = !isLocalDevelopment ? 
   // Quick test configuration
   [
     { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: false },
@@ -106,7 +106,13 @@ function updateDisplay() {
   
   // 修改: 更新所有進度條，包括在停止狀態下
   for (let i = 0; i < sections.length; i++) {
-    const fill = progressContainer.children[i].querySelector('.progress-fill');
+    const progressBar = progressContainer.children[i];
+    const fill = progressBar.querySelector('.progress-fill');
+    
+    // 設置預備拍的樣式
+    progressBar.classList.toggle('prep-mode', isPreparing && i === currentSection);
+    fill.classList.toggle('prep-mode', isPreparing && i === currentSection);
+    fill.classList.toggle('reverse', isPreparing && i === currentSection);
     
     if (i < currentSection) {
       // 當前段落之前的段落總是顯示100%
@@ -119,10 +125,20 @@ function updateDisplay() {
       fill.style.width = '0%';
     } else {
       // 運行狀態下當前段落根據進度顯示
-      const totalBeats = secData.beatsPerMeasure * secData.measures;
-      const completedBeats = (currentMeasure - 1) * secData.beatsPerMeasure + (currentBeat - 0);
-      const percentage = (completedBeats / totalBeats) * 100;
-      fill.style.width = `${percentage}%`;
+      const totalBeats = secData.beatsPerMeasure * (isPreparing ? 1 : secData.measures);
+      let completedBeats;
+      
+      if (isPreparing && i === currentSection) {
+        // 預備拍期間：計算已完成的預備拍個數
+        completedBeats = currentBeat - 1;  // 從0開始，所以減1
+        const percentage = 100 * (1 - completedBeats / secData.beatsPerMeasure);
+        fill.style.width = `${percentage}%`;  // 預備拍從100%開始遞減
+      } else {
+        // 正常拍期間：計算已完成的拍數
+        completedBeats = (currentMeasure - 1) * secData.beatsPerMeasure + (currentBeat - 0);
+        const percentage = (completedBeats / totalBeats) * 100;
+        fill.style.width = `${percentage}%`;  // 正常拍從0%開始遞增
+      }
     }
   }
 }
@@ -158,6 +174,7 @@ function playBeat() {
   osc.stop(audioCtx.currentTime + 0.08);
 }
 
+// 新增: 在預備拍結束後重置進度條樣式
 function tick() {
   if (!isRunning) return;
   
@@ -176,6 +193,7 @@ function tick() {
       isPreparing = false;
       // 預備拍結束後，設置為第一小節
       currentMeasure = 1;
+      // 更新顯示，確保進度條恢復正常顯示
       updateDisplay();
     } else {
       if (currentMeasure < secData.measures) {
