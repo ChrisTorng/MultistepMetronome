@@ -35,6 +35,7 @@ let isRunning = false;
 let schedulerId;
 let nextTickTime;
 let audioCtx = null;
+let isPreparing = false; // 是否處於預備拍狀態
 
 const sectionDisplay = document.getElementById('sectionDisplay');
 const bpmDisplay = document.getElementById('bpmDisplay');
@@ -68,7 +69,7 @@ function initProgressBars() {
   });
 }
 
-// 新增: 跳轉至指定段落的函數
+// 修改: 跳轉至指定段落的函數
 function jumpToSection(sectionIndex) {
   if (sectionIndex < 0 || sectionIndex >= sections.length) return;
   
@@ -81,16 +82,26 @@ function jumpToSection(sectionIndex) {
   currentSection = sectionIndex;
   currentMeasure = 1;
   currentBeat = 1;
+  isPreparing = false; // 確保不在預備拍狀態
   
   // 更新顯示
   updateDisplay();
+  
+  // 不再自動開始播放，只保持在暫停狀態
 }
 
 function updateDisplay() {
   const secData = sections[currentSection];
   sectionDisplay.textContent = `${currentSection + 1} / ${sections.length}`;
   bpmDisplay.textContent = secData.bpm;
-  measureDisplay.textContent = `${currentMeasure} / ${secData.measures}`;
+  
+  // 如果在預備拍階段，顯示小節數為 0
+  if (isPreparing) {
+    measureDisplay.textContent = `0 / ${secData.measures}`;
+  } else {
+    measureDisplay.textContent = `${currentMeasure} / ${secData.measures}`;
+  }
+  
   beatDisplay.textContent = currentBeat;
   
   // 修改: 更新所有進度條，包括在停止狀態下
@@ -133,8 +144,8 @@ function playBeat() {
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
   
-  // Set to lower frequency
-  osc.frequency.value = 440;
+  // 設置音調 - 預備拍使用較高的音調
+  osc.frequency.value = isPreparing ? 880 : 440; // 預備拍時頻率加倍
   
   // Set quick decay envelope
   gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
@@ -159,14 +170,23 @@ function tick() {
     currentBeat++;
   } else {
     currentBeat = 1;
-    if (currentMeasure < secData.measures) {
-      currentMeasure++;
-    } else {
+    
+    // 如果是預備拍結束，切換到正常播放狀態
+    if (isPreparing) {
+      isPreparing = false;
+      // 預備拍結束後，設置為第一小節
       currentMeasure = 1;
-      currentSection++;
-      if (currentSection >= sections.length) {
-        stopMetronome();
-        return;
+      updateDisplay();
+    } else {
+      if (currentMeasure < secData.measures) {
+        currentMeasure++;
+      } else {
+        currentMeasure = 1;
+        currentSection++;
+        if (currentSection >= sections.length) {
+          stopMetronome();
+          return;
+        }
       }
     }
   }
@@ -195,6 +215,22 @@ function scheduler() {
   }
   
   schedulerId = requestAnimationFrame(scheduler);
+}
+
+// 新增: 帶有預備拍的開始函數
+function startMetronomeWithPrep() {
+  if (isRunning) return;
+  
+  // 確保在結束後可以重新播放
+  if (currentSection >= sections.length) {
+    currentSection = 0;
+  }
+  
+  isPreparing = true; // 設置為預備拍狀態
+  currentMeasure = 1; // 實際標記為第一小節，顯示時會轉為0
+  currentBeat = 1;
+  
+  startMetronome();
 }
 
 function startMetronome() {
@@ -231,6 +267,7 @@ function stopMetronome() {
   // 取消 scheduler 調度
   cancelAnimationFrame(schedulerId);
   isRunning = false;
+  isPreparing = false; // 重設預備拍狀態
   startPauseBtn.textContent = '▶️ 開始';
   
   // 馬上更新顯示，確保界面與暫停狀態一致
@@ -239,6 +276,7 @@ function stopMetronome() {
 
 function resetMetronome() {
   stopMetronome();
+  isPreparing = false; // 重設預備拍狀態
   currentSection = 0;
   currentMeasure = 1;
   currentBeat = 1;
@@ -252,8 +290,7 @@ function resetMetronome() {
 
 startPauseBtn.addEventListener('click', () => {
   if (!isRunning) {
-    startMetronome();
-    startPauseBtn.textContent = '⏸️ 暫停';
+    startMetronomeWithPrep(); // 修改為使用帶預備拍的開始函數
   } else {
     stopMetronome();
   }
@@ -278,8 +315,7 @@ document.addEventListener('keydown', (event) => {
   if (event.code === 'Space') {
     event.preventDefault(); // 防止空白鍵捲動頁面
     if (!isRunning) {
-      startMetronome();
-      startPauseBtn.textContent = '⏸️ 暫停';
+      startMetronomeWithPrep(); // 修改為使用帶預備拍的開始函數
     } else {
       stopMetronome();
     }
