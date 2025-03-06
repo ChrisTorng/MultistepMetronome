@@ -72,9 +72,7 @@ function initProgressBars() {
 function jumpToSection(sectionIndex) {
   if (sectionIndex < 0 || sectionIndex >= sections.length) return;
   
-  const wasRunning = isRunning;
-  
-  // 如果正在運行，先暫停
+  // 無論當前是否在播放，跳轉後都進入暫停狀態
   if (isRunning) {
     stopMetronome();
   }
@@ -86,11 +84,6 @@ function jumpToSection(sectionIndex) {
   
   // 更新顯示
   updateDisplay();
-  
-  // 如果原來在運行，則恢復運行
-  if (wasRunning) {
-    startMetronome();
-  }
 }
 
 function updateDisplay() {
@@ -185,28 +178,53 @@ function tick() {
 function scheduler() {
   // 若停止了，則不再調度
   if (!isRunning) return;
+  
+  // 確保音訊環境處於正常狀態
+  if (audioCtx && audioCtx.state !== 'running') {
+    audioCtx.resume().then(() => {
+      if (isRunning) {
+        schedulerId = requestAnimationFrame(scheduler);
+      }
+    });
+    return;
+  }
+  
   // 當前時間超過等候時間則觸發 tick()
   if (audioCtx.currentTime >= nextTickTime) {
     tick();
   }
+  
   schedulerId = requestAnimationFrame(scheduler);
 }
 
 function startMetronome() {
   if (isRunning) return;
   
-  // Restart from beginning if reached the end
+  // 修正：確保在結束後可以重新播放
   if (currentSection >= sections.length) {
-    resetMetronome();
+    currentSection = 0;
+    currentMeasure = 1;
+    currentBeat = 1;
   }
   
   isRunning = true;
   // 確保 audioCtx 已初始化
   if (!audioCtx) audioCtx = new AudioContext();
+  else if (audioCtx.state === 'suspended') {
+    // 如果音訊環境被暫停，嘗試恢復它
+    audioCtx.resume();
+  }
+  
   // 設定 scheduler 的起始時間為當前音訊時間
   nextTickTime = audioCtx.currentTime;
   // 啟動 scheduler 循環
   schedulerId = requestAnimationFrame(scheduler);
+  
+  // 更新按鈕顯示
+  startPauseBtn.textContent = '⏸️ 暫停';
+  
+  // 更新顯示
+  updateDisplay();
 }
 
 function stopMetronome() {
@@ -214,6 +232,9 @@ function stopMetronome() {
   cancelAnimationFrame(schedulerId);
   isRunning = false;
   startPauseBtn.textContent = '▶️ 開始';
+  
+  // 馬上更新顯示，確保界面與暫停狀態一致
+  updateDisplay();
 }
 
 function resetMetronome() {
@@ -222,6 +243,11 @@ function resetMetronome() {
   currentMeasure = 1;
   currentBeat = 1;
   updateDisplay();
+  
+  // 確保重置後可以重新播放
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
 }
 
 startPauseBtn.addEventListener('click', () => {
