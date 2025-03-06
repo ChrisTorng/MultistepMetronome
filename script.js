@@ -10,7 +10,7 @@ const isLocalDevelopment = window.location.hostname === 'localhost' ||
                           window.location.protocol === 'file:';
 
 // Select appropriate configuration
-const sections = !isLocalDevelopment ? 
+const sections = isLocalDevelopment ? 
   // Quick test configuration
   [
     { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: false },
