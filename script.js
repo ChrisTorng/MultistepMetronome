@@ -60,7 +60,37 @@ function initProgressBars() {
     fill.style.width = '0'; // Ensure initial width is 0
     bar.appendChild(fill);
     progressContainer.appendChild(bar);
+    
+    // 新增: 為進度條添加點擊事件處理器
+    bar.addEventListener('click', () => {
+      jumpToSection(index);
+    });
   });
+}
+
+// 新增: 跳轉至指定段落的函數
+function jumpToSection(sectionIndex) {
+  if (sectionIndex < 0 || sectionIndex >= sections.length) return;
+  
+  const wasRunning = isRunning;
+  
+  // 如果正在運行，先暫停
+  if (isRunning) {
+    stopMetronome();
+  }
+  
+  // 設置新的段落位置
+  currentSection = sectionIndex;
+  currentMeasure = 1;
+  currentBeat = 1;
+  
+  // 更新顯示
+  updateDisplay();
+  
+  // 如果原來在運行，則恢復運行
+  if (wasRunning) {
+    startMetronome();
+  }
 }
 
 function updateDisplay() {
@@ -70,18 +100,21 @@ function updateDisplay() {
   measureDisplay.textContent = `${currentMeasure} / ${secData.measures}`;
   beatDisplay.textContent = currentBeat;
   
-  // Update all progress bars
+  // 修改: 更新所有進度條，包括在停止狀態下
   for (let i = 0; i < sections.length; i++) {
     const fill = progressContainer.children[i].querySelector('.progress-fill');
     
-    if (!isRunning) {
-      // When stopped, all progress bars should be 0
-      fill.style.width = '0%';
-    } else if (i < currentSection) {
+    if (i < currentSection) {
+      // 當前段落之前的段落總是顯示100%
       fill.style.width = '100%';
     } else if (i > currentSection) {
+      // 當前段落之後的段落總是顯示0%
+      fill.style.width = '0%';
+    } else if (!isRunning) {
+      // 停止狀態下當前段落顯示0%（表示準備從頭開始）
       fill.style.width = '0%';
     } else {
+      // 運行狀態下當前段落根據進度顯示
       const totalBeats = secData.beatsPerMeasure * secData.measures;
       const completedBeats = (currentMeasure - 1) * secData.beatsPerMeasure + (currentBeat - 0);
       const percentage = (completedBeats / totalBeats) * 100;
