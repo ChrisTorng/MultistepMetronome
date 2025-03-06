@@ -14,7 +14,6 @@ const sections = isLocalDevelopment ?
   // Quick test configuration
   [
     { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: false },
-    { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: false },
     { bpm: 80, beatsPerMeasure: 8, measures: 1, mute: true },
     { bpm: 120, beatsPerMeasure: 4, measures: 1, mute: false },
     { bpm: 144, beatsPerMeasure: 4, measures: 1, mute: false },
@@ -22,7 +21,6 @@ const sections = isLocalDevelopment ?
   ] : 
   // Production configuration
   [
-    { bpm: 80, beatsPerMeasure: 8, measures: 2, mute: false },
     { bpm: 80, beatsPerMeasure: 8, measures: 32, mute: false },
     { bpm: 80, beatsPerMeasure: 8, measures: 3, mute: true },
     { bpm: 120, beatsPerMeasure: 4, measures: 17, mute: false },

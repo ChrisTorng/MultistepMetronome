@@ -19,12 +19,12 @@ body {
 
 h1 {
   margin-bottom: 5px;
-  font-size: 2.2rem;
+  font-size: 2rem;
 }
 
 .song-title {
-  font-size: 1.8rem;
-  margin-bottom: 10px;
+  font-size: 2rem;
+  margin-bottom: 7px;
   color: #555;
 }
 
@@ -34,11 +34,14 @@ h1 {
   margin-bottom: 0;
   width: 90%;
   max-width: 500px;
+  display: flex;
+  flex-wrap: wrap; /* 允許換行 */
 }
 
 .info div {
   display: flex;
   margin-bottom: 2px;
+  width: 50%; /* 每個子元素佔一半寬度 */
 }
 
 .info div span:first-child {
@@ -88,8 +91,8 @@ h1 {
 
 .progress-bar {
   background: #e0e0e0;
-  margin-bottom: 8px; /* Reduce margin between progress bars */
-  height: 24px;
+  margin-bottom: 12px; /* Reduce margin between progress bars */
+  height: 40px;
   position: relative;
   border-radius: 12px;
   overflow: hidden;
