@@ -34,7 +34,8 @@ let currentSection = 0;
 let currentMeasure = 1;
 let currentBeat = 1;
 let isRunning = false;
-let intervalId;
+let schedulerId;
+let nextTickTime;
 let audioCtx = null;
 
 const sectionDisplay = document.getElementById('sectionDisplay');
@@ -146,9 +147,18 @@ function tick() {
     }
   }
   
-  // Calculate next tick interval based on current section's BPM
-  const nextTickTime = (60 / sections[currentSection].bpm) * 1000;
-  intervalId = setTimeout(tick, nextTickTime);
+  // 根據目前節拍計算下一拍時間，使用秒為單位
+  nextTickTime += 60 / secData.bpm;
+}
+
+function scheduler() {
+  // 若停止了，則不再調度
+  if (!isRunning) return;
+  // 當前時間超過等候時間則觸發 tick()
+  if (audioCtx.currentTime >= nextTickTime) {
+    tick();
+  }
+  schedulerId = requestAnimationFrame(scheduler);
 }
 
 function startMetronome() {
@@ -160,11 +170,17 @@ function startMetronome() {
   }
   
   isRunning = true;
-  tick();
+  // 確保 audioCtx 已初始化
+  if (!audioCtx) audioCtx = new AudioContext();
+  // 設定 scheduler 的起始時間為當前音訊時間
+  nextTickTime = audioCtx.currentTime;
+  // 啟動 scheduler 循環
+  schedulerId = requestAnimationFrame(scheduler);
 }
 
 function stopMetronome() {
-  clearTimeout(intervalId);
+  // 取消 scheduler 調度
+  cancelAnimationFrame(schedulerId);
   isRunning = false;
   startPauseBtn.textContent = '▶️ 開始';
 }
